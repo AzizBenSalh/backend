@@ -4,38 +4,29 @@ const User = require('../models/User');
 // Contrôleur Sign-Up
 const signUp = async (req, res) => {
     try {
-        const { name, email, password, confirmPassword, phone } = req.body;
+        console.log("Requête reçue pour Sign-Up : ", req.body);
 
-        // Vérification des mots de passe
+        const { name, email, password, confirmPassword, phone } = req.body;
         if (password !== confirmPassword) {
             return res.status(400).json({ message: "Les mots de passe ne correspondent pas." });
         }
 
-        // Vérification de l'existence de l'email
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({ message: "Un utilisateur avec cet email existe déjà." });
         }
 
-        // Hachage du mot de passe
         const hashedPassword = await bcrypt.hash(password, 10);
-
-        // Création de l'utilisateur
-        const user = new User({
-            name,
-            email,
-            password: hashedPassword, // Utiliser le mot de passe haché
-            phone
-        });
-
-        // Sauvegarde dans la base de données
+        const user = new User({ name, email, password: hashedPassword, phone });
         await user.save();
 
         res.status(201).json({ message: "Utilisateur créé avec succès." });
     } catch (error) {
+        console.error("Erreur dans le contrôleur Sign-Up : ", error);
         res.status(500).json({ message: "Erreur du serveur.", error: error.message });
     }
 };
+
 
 // Contrôleur Login
 const login = async (req, res) => {
