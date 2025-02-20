@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const userRoutes = require('./routes/userR');
+const medicationRoutes = require('./routes/medicamentsR');
 dotenv.config(); 
 
 const app = express();
@@ -27,6 +28,7 @@ app.get('/', (req, res) => {
 
 
 app.use('/api/users', userRoutes);
+app.use('/api', medicationRoutes);
 // Démarrer le serveur
 app.listen(port, () => {
     console.log(`Serveur démarré sur le port ${port}`);

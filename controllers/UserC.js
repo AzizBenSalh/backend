@@ -6,18 +6,25 @@ const signUp = async (req, res) => {
     try {
         console.log("Requête reçue pour Sign-Up : ", req.body);
 
-        const { name, email, password, confirmPassword, phone } = req.body;
-        if (password !== confirmPassword) {
-            return res.status(400).json({ message: "Les mots de passe ne correspondent pas." });
-        }
+        // Récupération des champs depuis le body, incluant "role"
+        const { name, email, password, role } = req.body;
 
+        // Vérifie si un utilisateur existe déjà avec cet email
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({ message: "Un utilisateur avec cet email existe déjà." });
         }
 
+        // Hachage du mot de passe
         const hashedPassword = await bcrypt.hash(password, 10);
-        const user = new User({ name, email, password: hashedPassword, phone });
+
+        // Création de l'utilisateur avec le champ role
+        const user = new User({ 
+            name, 
+            email, 
+            password: hashedPassword, 
+            role  // "role" peut être "user" ou "pharmacy_owner"
+        });
         await user.save();
 
         res.status(201).json({ message: "Utilisateur créé avec succès." });
@@ -26,6 +33,9 @@ const signUp = async (req, res) => {
         res.status(500).json({ message: "Erreur du serveur.", error: error.message });
     }
 };
+
+
+
 
 
 // Contrôleur Login
@@ -48,7 +58,7 @@ const login = async (req, res) => {
         // Répondre avec les informations utilisateur
         res.status(200).json({
             message: "Connexion réussie.",
-            user: { id: user._id, name: user.name, email: user.email, phone: user.phone }
+            user: { id: user._id, name: user.name, email: user.email}
         });
     } catch (err) {
         res.status(500).json({ message: "Erreur du serveur.", error: err.message });
